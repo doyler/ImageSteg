@@ -10,8 +10,8 @@ from PIL import Image
 
 def stringToBits(theString):
     result = []
-    for aChar in theString:
-        bits = bin(ord(aChar))[2:]
+    for char in theString:
+        bits = bin(ord(char))[2:]
         bits = "00000000"[len(bits):] + bits
         result.extend([int(b) for b in bits])
     return result
@@ -82,17 +82,39 @@ def decodeMessageInPixels(pixels, location):
             secMessage = bitsToString(secMessageBits)
         i += 1
     return secMessage.rstrip("\0")
+    
+def caesarEncrypt(message, shift):
+    cipherText = ""
+    for char in message:
+        if char.isalpha():
+            cipherText += chr((ord(char.lower()) - 97 + shift) % 26 + 97)
+        else:
+            cipherText += char
+    return cipherText
+    
+def caesarDecrypt(message, shift):
+    plainText = ""
+    for char in message:
+        if char.isalpha():
+            plainText += chr((ord(char.lower()) - 97 - shift) % 26 + 97)
+        else:
+            plainText += char
+    return plainText            
 
 def main():
     width, height, pixels = getPixelsFromImage("python.jpg")
     message = "This is a test\0"
+    messageEnc = caesarEncrypt(message, 3)
 
     img2 = Image.new("RGB", (width, height))
-    img2.putdata(encodeMessageInPixels(message, pixels, "ALL"))
+    img2.putdata(encodeMessageInPixels(messageEnc, pixels, "ALL"))
     img2.save("python2.png")
 
     width2, height2, pixels2 = getPixelsFromImage("python2.png")
 
-    print "THE SECRET MESSAGE: " + str(decodeMessageInPixels(pixels2, "ALL"))
+    outMessage = decodeMessageInPixels(pixels2, "ALL")
+    messageDec = caesarDecrypt(outMessage, 3)
+    print "THE SECRET MESSAGE: " + messageDec
     
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
