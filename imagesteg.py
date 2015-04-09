@@ -57,7 +57,7 @@ def encodeMessageInPixels(message, pixels, location):
         newB = (int(oldB, 2) & ~1) | 0
         newPix += (newB,)
     new_pixels.append(newPix)
-    for i in range(len(new_pixels) * 3, len(pixels)):
+    for i in range(len(new_pixels), len(pixels)):
         new_pixels.append(pixels[i])
     return new_pixels
         
@@ -83,13 +83,16 @@ def decodeMessageInPixels(pixels, location):
         i += 1
     return secMessage.rstrip("\0")
 
-width, height, pixels = getPixelsFromImage("python.jpg")
-message = "This is a test\0"
+def main():
+    width, height, pixels = getPixelsFromImage("python.jpg")
+    message = "This is a test\0"
 
-img2 = Image.new("RGB", (width, height))
-img2.putdata(encodeMessageInPixels(message, pixels, "ALL"))
-img2.save("python2.png")
+    img2 = Image.new("RGB", (width, height))
+    img2.putdata(encodeMessageInPixels(message, pixels, "ALL"))
+    img2.save("python2.png")
 
-width2, height2, pixels2 = getPixelsFromImage("python2.png")
+    width2, height2, pixels2 = getPixelsFromImage("python2.png")
 
-print "THE SECRET MESSAGE: " + str(decodeMessageInPixels(pixels2, "ALL"))
+    print "THE SECRET MESSAGE: " + str(decodeMessageInPixels(pixels2, "ALL"))
+    
+if __name__ == "__main__": main()
