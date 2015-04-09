@@ -81,7 +81,7 @@ def decodeMessageInPixels(pixels, location):
         if (i + 1) % 8 == 0:
             secMessage = bitsToString(secMessageBits)
         i += 1
-    return secMessage
+    return secMessage.rstrip("\0")
 
 width, height, pixels = getPixelsFromImage("python.jpg")
 message = "This is a test\0"
