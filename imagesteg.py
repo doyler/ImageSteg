@@ -32,7 +32,6 @@ def getPixelsFromImage(filename):
     
 def encodeMessageInPixels(message, pixels, location):
     new_pixels = []
-    counter = 1
     newPix = ()
     for bit in stringToBits(message):
         oldB = bin(pixels[bit][2])
@@ -46,14 +45,13 @@ def encodeMessageInPixels(message, pixels, location):
             new_pixels.append((pixels[bit][0], pixels[bit][1], newB))
         elif location == "ALL":
             newPix += (newB,)
-            if counter % 3 == 0:
+            if len(newPix) % 3 == 0:
                 new_pixels.append(newPix)
                 newPix = ()
         else:
             raise ValueError("{loc} is an improper value for location; "
                             "use 'R', 'G', 'B', "
                             "or 'ALL' instead.""".format(loc=repr(location)))
-        counter += 1
     for i in range (0, 3):
         oldB = bin(pixels[bit][i])
         newB = (int(oldB, 2) & ~1) | 0
