@@ -12,7 +12,7 @@ def stringToBits(theString):
     result = []
     for char in theString:
         bits = bin(ord(char))[2:]
-        bits = "00000000"[len(bits):] + bits
+        bits = "%08d" % int(bits)
         result.extend([int(b) for b in bits])
     return result
 
@@ -20,6 +20,7 @@ def bitsToString(bits):
     chars = []
     for b in range(len(bits) / 8):
         byte = bits[b*8:(b+1)*8]
+        #Clean this up a bit for usability and readability
         chars.append(chr(int(''.join([str(bit) for bit in byte]), 2)))
     return ''.join(chars)
     
@@ -36,6 +37,7 @@ def encodeMessageInPixels(message, pixels, location):
     for bit in stringToBits(message):
         oldB = bin(pixels[bit][2])
         newB = (int(oldB, 2) & ~1) | bit
+        #Consider a slightly different way to determine where to put the info?
         if location == "R":
             new_pixels.append((newB, pixels[bit][1], pixels[bit][2]))
         elif location == "G":
@@ -79,6 +81,11 @@ def decodeMessageInPixels(pixels, location):
                             "use 'R', 'G', 'B', "
                             "or 'ALL' instead.""".format(loc=repr(location)))      
         if (i + 1) % 8 == 0:
+            """
+            This ends up calling the bitsToString method for each character,
+            this is unnecessary and the checking or calling should be done
+            slightly differently.
+            """
             secMessage = bitsToString(secMessageBits)
         i += 1
     return secMessage.rstrip("\0")
