@@ -6,6 +6,11 @@ Created on Wed Apr 01 15:35:12 2015
 http://en.wikipedia.org/wiki/Steganography
 """
 
+import base64
+import hashlib
+
+from Crypto import Random
+from Crypto.Cipher import AES
 from PIL import Image
 
 def stringToBits(theString):
@@ -104,13 +109,27 @@ def caesarDecrypt(message, shift):
             plainText += chr((ord(char.lower()) - 97 - shift) % 26 + 97)
         else:
             plainText += char
-    return plainText            
+    return plainText        
+
+def aesEncrypt(message, key):
+    iv = Random.new().read(AES.block_size)
+    keySum = hashlib.md5(key).hexdigest()
+    cipher = AES.new(keySum, AES.MODE_CFB, iv)
+    return base64.b64encode(iv + cipher.encrypt(message))
+
+def aesDecrypt(cipherText, key):
+    cipherText = base64.b64decode(cipherText) 
+    iv = cipherText[:16]
+    keySum = hashlib.md5(key).hexdigest()
+    cipher = AES.new(keySum, AES.MODE_CFB, iv)
+    return cipher.decrypt(cipherText[16:])
 
 def main():
     width, height, pixels = getPixelsFromImage("python.jpg")
     message = "This is a test\0"
-    messageEnc = caesarEncrypt(message, 3)
-
+    #messageEnc = caesarEncrypt(message, 3)
+    messageEnc = aesEncrypt(message, "secretkey")
+    
     img2 = Image.new("RGB", (width, height))
     img2.putdata(encodeMessageInPixels(messageEnc, pixels, "ALL"))
     img2.save("python2.png")
@@ -118,7 +137,8 @@ def main():
     width2, height2, pixels2 = getPixelsFromImage("python2.png")
 
     outMessage = decodeMessageInPixels(pixels2, "ALL")
-    messageDec = caesarDecrypt(outMessage, 3)
+    #messageDec = caesarDecrypt(outMessage, 3)
+    messageDec = aesDecrypt(outMessage, "secretkey")
     print "THE SECRET MESSAGE: " + messageDec
     
 if __name__ == "__main__":
