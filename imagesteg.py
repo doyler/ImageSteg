@@ -93,24 +93,6 @@ def decodeMessageInPixels(pixels, location):
         i += 1
     return secMessage.rstrip("\0")
     
-def caesarEncrypt(message, shift):
-    cipherText = ""
-    for char in message:
-        if char.isalpha():
-            cipherText += chr((ord(char.lower()) - 97 + shift) % 26 + 97)
-        else:
-            cipherText += char
-    return cipherText
-    
-def caesarDecrypt(message, shift):
-    plainText = ""
-    for char in message:
-        if char.isalpha():
-            plainText += chr((ord(char.lower()) - 97 - shift) % 26 + 97)
-        else:
-            plainText += char
-    return plainText        
-
 def aesEncrypt(message, key):
     iv = Random.new().read(AES.block_size)
     keySum = hashlib.md5(key).hexdigest()
@@ -127,7 +109,6 @@ def aesDecrypt(cipherText, key):
 def main():
     width, height, pixels = getPixelsFromImage("python.jpg")
     message = "This is a test\0"
-    #messageEnc = caesarEncrypt(message, 3)
     messageEnc = aesEncrypt(message, "secretkey")
     
     img2 = Image.new("RGB", (width, height))
@@ -137,7 +118,6 @@ def main():
     width2, height2, pixels2 = getPixelsFromImage("python2.png")
 
     outMessage = decodeMessageInPixels(pixels2, "ALL")
-    #messageDec = caesarDecrypt(outMessage, 3)
     messageDec = aesDecrypt(outMessage, "secretkey")
     print "THE SECRET MESSAGE: " + messageDec
     
